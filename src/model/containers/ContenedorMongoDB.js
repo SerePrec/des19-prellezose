@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import config from "../config.js";
-import { logger } from "../logger/index.js";
-import { deepClone, renameField, removeField } from "../utils/dataTools.js";
+import config from "../../config.js";
+import { logger } from "../../logger/index.js";
+import { deepClone, renameField, removeField } from "../../utils/dataTools.js";
 
 try {
   switch (process.env.PERS) {

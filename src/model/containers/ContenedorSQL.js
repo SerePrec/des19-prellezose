@@ -1,6 +1,6 @@
 import Knex from "knex";
-import { deepClone, verifyTimestamp } from "../utils/dataTools.js";
-import { logger } from "../logger/index.js";
+import { deepClone, verifyTimestamp } from "../../utils/dataTools.js";
+import { logger } from "../../logger/index.js";
 
 class ContenedorSQL {
   constructor(config, table) {

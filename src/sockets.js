@@ -1,4 +1,4 @@
-import { productsModel, messagesModel } from "./models/index.js";
+import { productsModel, messagesModel } from "./model/index.js";
 import { escapeHtml, normalizeMessages } from "./utils/messageTools.js";
 import { logger } from "./logger/index.js";
 

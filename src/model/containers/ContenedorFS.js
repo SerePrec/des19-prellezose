@@ -1,7 +1,7 @@
 import * as fs from "fs/promises";
 import path from "path";
-import config from "../config.js";
-import { logger } from "../logger/index.js";
+import config from "../../config.js";
+import { logger } from "../../logger/index.js";
 
 const dbDir = config.fileSystemDb.path;
 

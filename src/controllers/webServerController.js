@@ -37,13 +37,5 @@ export const showAppInfo = (req, res) => {
     rss: Math.round(process.memoryUsage().rss / 1024),
     CPUs: config.numCPUs
   };
-
-  //--->>>>> Activar o desactivar el console.log para testeos
-  // console.log(
-  //   "Probando el efecto del console.log en el rendimiento\nEsta es la app info para presentar:\n",
-  //   info
-  // );
-  //---<<<<<<
-
   res.render("./pages/appInfo", info);
 };

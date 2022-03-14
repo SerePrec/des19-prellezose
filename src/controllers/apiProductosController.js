@@ -1,4 +1,4 @@
-import { productsModel } from "../models/index.js";
+import { productsModel } from "../model/index.js";
 import { logger } from "../logger/index.js";
 
 export const getAllProducts = async (req, res) => {

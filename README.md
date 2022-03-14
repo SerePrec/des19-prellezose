@@ -14,10 +14,10 @@ Considerar agrupar las rutas por funcionalidad, con sus controladores, lógica d
 
 La capa de persistencia contendrá los métodos necesarios para atender la interacción de la lógica de negocio con los propios datos.
 
-
 ### Deploy en Heroku (Temporal):
 
 https://des18-prellezose.herokuapp.com/
+
 ### Ejecución
 
 Luego de clonar o descargar el repositorio e instalar todas las dependencias con `npm install`, existen dos comandos para levantar el proyecto.
@@ -27,7 +27,7 @@ Se puede pasar por parámetros de argumento dos opciones:
 | Opción | Valor | Defecto |
 | ------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `-p --port --PORT` | Número de puerto de escucha del servidor | 8080 |
-| `-m --mode --MODE` | Módo de ejecución del servidor. `fork` o `cluster` | fork |
+| `-m --mode --MODE` | Módo de ejecución del servidor. `FORK` o `CLUSTER` | FORK |
 
 Se puede seleccionar entre dos métodos de persistencia de **datos y sesiones** a través de la variable de entorno `PERS`. El modo `PERS=mongodb_atlas` **(DEFECTO)** para persistir en **MongoDB Atlas** y el modo `PERS=mongodb` para hacer lo mismo en **MongoDB local**
 
@@ -69,4 +69,3 @@ Consiste en las siguientes rutas:
 | GET    | **/api/randoms**        | Devuelve una cantidad de números aleatorios en el rango del 1 al 1000 especificada por parámetros de consulta (query). Por ej: `/api/randoms?cant=20000`. Si dicho parámetro no se ingresa, calcula 100.000.000 de números. |
 
 ### Detalles y comentarios
-
