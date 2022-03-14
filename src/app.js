@@ -2,11 +2,13 @@ import express from "express";
 import session from "express-session";
 import compression from "compression";
 import MongoStore from "connect-mongo";
-
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-
 import { passport } from "./middlewares/passport.js";
+import {
+  getError404Api,
+  getError404Web
+} from "./controllers/error404Controller.js";
 import config from "./config.js";
 import authRouter from "./routes/authRouter.js";
 import webServerRouter from "./routes/webServerRouter.js";
@@ -16,26 +18,19 @@ import apiRandomsRouter from "./routes/apiRandomsRouter.js";
 import { logger } from "./logger/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const mongoUrl =
-  process.env.PERS === "mongodb"
-    ? config.mongoDb.connectionString
-    : config.mongoDbAtlas.connectionString;
-const mongoOptions =
-  process.env.PERS === "mongodb"
-    ? config.mongoDb.advancedOptions
-    : config.mongoDbAtlas.advancedOptions;
+
 const app = express();
 
 // configuración motor de plantillas
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-// compresión de respuestas
-app.use(compression());
-
 // middlewares para parsear el body del request
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// compresión de respuestas
+app.use(compression());
 
 // middleware para loguear cada request
 app.use((req, res, next) => {
@@ -43,22 +38,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// servir archivos estáticos
 app.use(express.static(path.join(__dirname, "public"))); // comentar si utilizo Nginx como servidor de recursos estáticos
 
-// ELECCIÓN DE SESSION STORE: MONGOSTORE ****************
+// sesiones. SESSION STORE: MONGOSTORE
 app.use(
   session({
-    store: MongoStore.create({ mongoUrl, mongoOptions }),
-    secret: config.session.secret,
-    resave: false,
-    saveUninitialized: false,
-    rolling: true,
-    cookie: {
-      maxAge: 10 * 60 * 1000
-    }
+    store: MongoStore.create(config.session.mongoStoreOptions),
+    ...config.session.options
   })
 );
 
+// passport
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -70,26 +61,9 @@ app.use("/api/randoms", apiRandomsRouter);
 app.use("/api/productos", apiProductosRouter);
 
 // error 404 API
-app.use("/api", (req, res, next) => {
-  logger.warn(
-    `ruta '${req.baseUrl + req.path}' método '${req.method}' no implementada`
-  );
-  res.status(404).json({
-    error: -2,
-    descripcion: `ruta '${req.baseUrl + req.path}' método '${
-      req.method
-    }' no implementada`
-  });
-});
+app.use("/api", getError404Api);
 
 // error 404 WEB
-app.use((req, res, next) => {
-  logger.warn(
-    `ruta '${req.baseUrl + req.path}' método '${req.method}' no implementada`
-  );
-  res.sendFile("404.html", {
-    root: path.join(__dirname, "views")
-  });
-});
+app.use(getError404Web);
 
 export default app;

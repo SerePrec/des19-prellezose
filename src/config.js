@@ -5,10 +5,12 @@ import parseArgs from "minimist";
 
 const argv = parseArgs(process.argv.slice(2), {
   alias: { p: ["PORT", "port"], m: ["mode", "MODE"] },
-  default: { p: 8080, m: "fork" }
+  default: { p: 8080, m: "FORK" }
 });
 
-if (process.env.NODE_ENV !== "production") {
+const NODE_ENV = process.env.NODE_ENV;
+
+if (NODE_ENV !== "production") {
   const { config } = await import("dotenv");
   config();
 }
@@ -16,8 +18,9 @@ if (process.env.NODE_ENV !== "production") {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const config = {
+  NODE_ENV,
   PORT: process.env.PORT || Number(argv.PORT) || 8080,
-  MODE: process.env.MODE || argv.MODE || "fork",
+  MODE: process.env.MODE || argv.MODE || "FORK",
   numCPUs: os.cpus().length,
   logsFolder: path.join(__dirname, "logs"),
   fileSystemDb: {
@@ -43,13 +46,12 @@ const config = {
     useNullAsDefault: true
   },
   mongoDb: {
-    connectionString: "mongodb://localhost/des15",
+    connectionString: process.env.MONGODB_URI || "mongodb://localhost/test",
     options: {
       //useNewUrlParser: true, //No necesario desde mongoose 6
       //useUnifiedTopology: true, //No necesario desde mongoose 6
       serverSelectionTimeoutMS: 5000
-    },
-    advancedOptions: { useUnifiedTopology: true }
+    }
   },
   mongoDbAtlas: {
     connectionString: process.env.MONGODB_ATLAS_URI,
@@ -57,14 +59,31 @@ const config = {
       //useNewUrlParser: true, //No necesario desde mongoose 6
       //useUnifiedTopology: true, //No necesario desde mongoose 6
       serverSelectionTimeoutMS: 7000
-    },
-    advancedOptions: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true
     }
   },
   session: {
-    secret: process.env.SESSION_SECRET || "secret"
+    mongoStoreOptions: {
+      mongoUrl:
+        process.env.PERS === "mongodb"
+          ? process.env.MONGODB_URI
+          : process.env.MONGODB_ATLAS_URI,
+      mongoOptions:
+        process.env.PERS === "mongodb"
+          ? { useUnifiedTopology: true }
+          : {
+              useNewUrlParser: true,
+              useUnifiedTopology: true
+            }
+    },
+    options: {
+      secret: process.env.SESSION_SECRET || "secret",
+      resave: false,
+      saveUninitialized: false,
+      rolling: true,
+      cookie: {
+        maxAge: 10 * 60 * 1000
+      }
+    }
   }
 };
 

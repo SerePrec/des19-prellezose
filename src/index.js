@@ -18,7 +18,7 @@ async function startServer() {
   const io = new IoServer(httpServer);
 
   // Uso el adaptador de cluster
-  MODE === "cluster" && io.adapter(createAdapter());
+  MODE === "CLUSTER" && io.adapter(createAdapter());
 
   // Configuro las funcionalidades del websocket
   sockets(io);
@@ -29,20 +29,28 @@ async function startServer() {
       logger.info(
         `Servidor http con websockets escuchando en el puerto ${
           httpServer.address().port
-        } - WORKER PID ${process.pid}`
+        }`
       )
     )
     .on("error", error => {
-      logger.error(`Ocurrió un error en el servidor:\n ${error}`);
+      logger.error(`Ocurrió un error en el servidor: ${error}`);
       process.exit(1);
     });
 }
 
-process.on("exit", code => {
-  logger.info("Salida del proceso con código de error: " + code);
-});
+cluster.isPrimary &&
+  logger.info(
+    `>>>> Entorno: ${
+      config.NODE_ENV === "production" ? "Producción" : "Desarrollo"
+    } <<<<`
+  );
 
-if (MODE === "cluster" && cluster.isPrimary) {
+MODE !== "CLUSTER" &&
+  process.on("exit", code => {
+    logger.info(`Salida del proceso con código de error: ${code}`);
+  });
+
+if (MODE === "CLUSTER" && cluster.isPrimary) {
   logger.info(`Proceso Master iniciado con PID ${process.pid}`);
   logger.info(`Número de procesadores: ${config.numCPUs}`);
 
@@ -55,14 +63,10 @@ if (MODE === "cluster" && cluster.isPrimary) {
 
   cluster.on("exit", (worker, code, signal) => {
     logger.warn(
-      `Worker con PID ${worker.process.pid} terminado - ${
+      `Worker con PID ${worker.process.pid} terminado - signal/code:[${
         signal || code
-      } - [${new Date().toLocaleString()}]`
+      }]`
     );
     cluster.fork();
   });
-} else if (MODE === "cluster" || MODE === "fork") startServer();
-else {
-  logger.error(`Parámetro 'mode' inválido`);
-  process.exit(1);
-}
+} else startServer();
