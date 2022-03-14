@@ -16,6 +16,7 @@ function getRandomNumbers(min, max, qty) {
 logger.info(
   `Child Process 'calcRandomNumbers' iniciado con pid:${process.pid}`
 );
+
 process.on("message", msg => {
   const { action, payload } = msg;
   if (action === "start") {

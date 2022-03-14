@@ -1,5 +1,5 @@
-import { generateNMockProduct } from "../utils/mockProduct.js";
+import * as testsService from "../services/testsService.js";
 
 export const getProductosTest = (req, res) => {
-  res.json(generateNMockProduct(5));
+  res.json(testsService.generateNMockProduct(5));
 };

@@ -1,9 +1,9 @@
-import { productsModel } from "../model/index.js";
+import * as productsService from "../services/productosService.js";
 import { logger } from "../logger/index.js";
 
 export const getAllProducts = async (req, res) => {
   try {
-    const lista = await productsModel.getAll();
+    const lista = await productsService.getAllProducts();
     res.json(lista);
   } catch (error) {
     logger.error(error);
@@ -17,7 +17,7 @@ export const createProduct = async (req, res) => {
   try {
     let { title, price, thumbnail } = req.body;
     let newProduct = { title, price, thumbnail };
-    newProduct = await productsModel.save(newProduct);
+    newProduct = await productsService.createProduct(newProduct);
     logger.info("Producto creado con éxito");
     res.json({ result: "ok", newProduct });
   } catch (error) {
@@ -30,7 +30,7 @@ export const createProduct = async (req, res) => {
 
 export const getProduct = async (req, res) => {
   try {
-    const producto = await productsModel.getById(req.params.id);
+    const producto = await productsService.getProduct(req.params.id);
     producto !== null
       ? res.json(producto)
       : res.json({ error: "Producto no encontrado" });
@@ -47,7 +47,7 @@ export const updateProduct = async (req, res) => {
     const { title, price, thumbnail } = req.body;
     const { id } = req.params;
     let updateProduct = { title, price, thumbnail };
-    updateProduct = await productsModel.updateById(id, updateProduct);
+    updateProduct = await productsService.updateProduct(id, updateProduct);
     if (updateProduct !== null) {
       logger.info("Producto actualizado con éxito");
       res.json({ result: "ok", updateProduct });
@@ -65,7 +65,7 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
   try {
-    const deletedId = await productsModel.deleteById(req.params.id);
+    const deletedId = await productsService.deleteProduct(req.params.id);
     if (deletedId !== null) {
       logger.info("Producto borrado con éxito");
       res.json({ result: "ok", deletedId });
