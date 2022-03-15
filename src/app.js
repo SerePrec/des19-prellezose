@@ -5,6 +5,7 @@ import MongoStore from "connect-mongo";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { passport } from "./middlewares/passport.js";
+import { isAuthApi } from "./middlewares/auth.js";
 import {
   getError404Api,
   getError404Web
@@ -58,7 +59,7 @@ app.use(authRouter);
 app.use(webServerRouter);
 app.use("/api", apiTestsRouter);
 app.use("/api/randoms", apiRandomsRouter);
-app.use("/api/productos", apiProductosRouter);
+app.use("/api/productos", isAuthApi, apiProductosRouter);
 
 // error 404 API
 app.use("/api", getError404Api);

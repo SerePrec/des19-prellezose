@@ -10,10 +10,10 @@ const isAuthApi = (req, res, next) => {
     return next();
   }
   res.status(401).json({
-    error: -1,
+    error: "No autenticado",
     descripcion: `ruta '${req.baseUrl + req.path}' método '${
       req.method
-    }' no autorizada`
+    }' necesita autenticación`
   });
 };
 
