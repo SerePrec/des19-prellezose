@@ -1,72 +1,22 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { userModel } from "../model/index.js";
-import { createHash, isValidPassword } from "../utils/crypt.js";
-import { logger } from "../logger/index.js";
+import * as authUserService from "../services/authUserService.js";
 
 passport.use(
   "register",
   new LocalStrategy(
     { passReqToCallback: true },
     async (req, username, password, done) => {
-      try {
-        const user = await userModel.getByUsername(username);
-        if (user) {
-          return done(null, false, {
-            message: "El nombre de usuario ya existe"
-          });
-        }
-        const newUser = {
-          username,
-          password: createHash(password)
-        };
-        const newUserAdded = await userModel.save(newUser);
-        logger.info(`Usuario registrado con éxito con id ${newUserAdded.id}`);
-        return done(null, newUserAdded);
-      } catch (error) {
-        logger.error("Error al registrar usuario: ", error);
-        done(error);
-      }
+      return authUserService.verifyRegister({}, username, password, done);
     }
   )
 );
 
-passport.use(
-  "login",
-  new LocalStrategy(async (username, password, done) => {
-    try {
-      const user = await userModel.getByUsername(username);
-      if (!user) {
-        return done(null, false, {
-          message: "Nombre de usuario y/o contraseña incorrectos"
-        });
-      }
-      if (!isValidPassword(user, password)) {
-        return done(null, false, {
-          message: "Nombre de usuario y/o contraseña incorrectos"
-        });
-      }
-      logger.info("Usuario logueado con éxito");
-      return done(null, user);
-    } catch (error) {
-      logger.error("Error al loguear usuario: ", error);
-      done(error);
-    }
-  })
-);
+passport.use("login", new LocalStrategy(authUserService.verifyLogin));
 
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
+passport.serializeUser(authUserService.serializeUser);
 
-passport.deserializeUser(async (id, done) => {
-  try {
-    const user = await userModel.getById(id);
-    done(null, user);
-  } catch (error) {
-    done(error);
-  }
-});
+passport.deserializeUser(authUserService.deserializeUser);
 
 const passportAuthLogin = passport.authenticate("login", {
   failureRedirect: "/login-error",
