@@ -14,10 +14,6 @@ Considerar agrupar las rutas por funcionalidad, con sus controladores, lógica d
 
 La capa de persistencia contendrá los métodos necesarios para atender la interacción de la lógica de negocio con los propios datos.
 
-### Deploy en Heroku (Temporal):
-
-https://des18-prellezose.herokuapp.com/
-
 ### Ejecución
 
 Luego de clonar o descargar el repositorio e instalar todas las dependencias con `npm install`, existen dos comandos para levantar el proyecto.
@@ -58,14 +54,31 @@ Consiste en las siguientes rutas:
 
 #### Router /api/productos
 
-| Método | Endpoint                | Descripción                                                                                                                                                                                                                 |
-| ------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GET    | **/api/productos/**     | Me permite listar todos los productos disponibles                                                                                                                                                                           |
-| POST   | **/api/productos/**     | Para incorporar productos al listado                                                                                                                                                                                        |
-| GET    | **/api/productos/:id**  | Me permite listar un producto por su id                                                                                                                                                                                     |
-| PUT    | **/api/productos/:id**  | Actualiza un producto por su id. Admite actualizaciones parciales                                                                                                                                                           |
-| DELETE | **/api/productos/:id**  | Borra un producto por su id                                                                                                                                                                                                 |
-| GET    | **/api/productos-test** | Devuelve un listado de 5 productos mock generados con **Faker.js**                                                                                                                                                          |
-| GET    | **/api/randoms**        | Devuelve una cantidad de números aleatorios en el rango del 1 al 1000 especificada por parámetros de consulta (query). Por ej: `/api/randoms?cant=20000`. Si dicho parámetro no se ingresa, calcula 100.000.000 de números. |
+| Método | Endpoint                | Descripción                                                        |
+| ------ | ----------------------- | ------------------------------------------------------------------ |
+| GET    | **/api/productos/**     | Me permite listar todos los productos disponibles                  |
+| POST   | **/api/productos/**     | Para incorporar productos al listado                               |
+| GET    | **/api/productos/:id**  | Me permite listar un producto por su id                            |
+| PUT    | **/api/productos/:id**  | Actualiza un producto por su id. Admite actualizaciones parciales  |
+| DELETE | **/api/productos/:id**  | Borra un producto por su id                                        |
+| GET    | **/api/productos-test** | Devuelve un listado de 5 productos mock generados con **Faker.js** |
+
+#### Router /api/randoms
+
+| Método | Endpoint         | Descripción                                                                                                                                                                                                                 |
+| ------ | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | **/api/randoms** | Devuelve una cantidad de números aleatorios en el rango del 1 al 1000 especificada por parámetros de consulta (query). Por ej: `/api/randoms?cant=20000`. Si dicho parámetro no se ingresa, calcula 100.000.000 de números. |
 
 ### Detalles y comentarios
+
+Tomando como base la estructuras de carpetas de los últimos desafíos en donde ya había hecho una división de componentes: **rutas**, **controladores**,**middlewares**, **modelos**, comencé reorganizando la carpeta `models`.
+Dentro están los **contenedores** desde donde se extienden los respectivos **DAOs** y un archivo de índice que exporta los DAOs correspondientes.
+
+Moví los dos tipos de errores 404 a su respectivo controlador.
+
+Toda la lógica de negocio fue trasladada desde los controladores (en donde residía hasta ahora) a la capa de servicio. Se dividieron en archivos según la funcionalidad que se encuentran dentro de la carpeta `services`.  
+También la lógica de negocios asociada a las validaciones que ofrecen los middlewares fue traslada allí.  
+Es está capa la que se comunica con el modelo, evitando el salto de capas. Cada capa realiza su tarea y se la comunica a la capa adyacente ya sea hacía arriba o abajo de la arquitectura.
+Tanto controladores como middlewares (que se encuentran en la capa de ruteo), reciben la petición y pasan los datos a la capa de servicio (cuando corresponde) esperando por su respuesta.
+
+Para el caso de los **sockets** ocurre algo similar, donde cada evento tiene asociada una función (controlador). Éste recibe la data y se comunica de ser necesario con la capa de servicio y esta a su vez con el modelo.
